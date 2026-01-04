@@ -89,7 +89,10 @@ interface OccupancyData {
 }
 
 // Main TTN webhook handler - aligned with your cafetracker-application
-export const processTTNWebhook = onRequest(async (request, response) => {
+// Public endpoint for TTN to call
+export const processTTNWebhook = onRequest(
+  { cors: true, invoker: "public" },
+  async (request, response) => {
   try {
     logger.info("=== TTN Webhook Received ===");
     logger.info("Headers:", JSON.stringify(request.headers));
@@ -350,8 +353,10 @@ function decodeAvailoPayload(
   }
 }
 
-// Health check endpoint for monitoring
-export const healthCheck = onRequest((request, response) => {
+// Health check endpoint for monitoring (public)
+export const healthCheck = onRequest(
+  { cors: true, invoker: "public" },
+  (request, response) => {
   const healthData = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -521,8 +526,10 @@ async function updateDailyAggregations(
   }
 }
 
-// Get device configuration (useful for debugging)
-export const getDeviceConfig = onRequest((request, response) => {
+// Get device configuration (useful for debugging, public)
+export const getDeviceConfig = onRequest(
+  { cors: true, invoker: "public" },
+  (request, response) => {
   const deviceId = request.query.device as string;
   
   if (deviceId) {
@@ -540,8 +547,10 @@ export const getDeviceConfig = onRequest((request, response) => {
   }
 });
 
-// Legacy function for backward compatibility
-export const getLoungeOccupancy = onRequest(async (request, response) => {
+// Get lounge occupancy data (public)
+export const getLoungeOccupancy = onRequest(
+  { cors: true, invoker: "public" },
+  async (request, response) => {
   try {
     const db = admin.firestore();
     const snapshot = await db.collection('lounge_status').get();
