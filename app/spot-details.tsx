@@ -5,6 +5,7 @@ import React, { useState, useMemo } from 'react';
 import {
   Dimensions,
   Image,
+  ImageSourcePropType,
   ScrollView,
   StyleSheet,
   Text,
@@ -23,6 +24,18 @@ import {
   getCapacityText,
 } from '../constants/theme';
 import { useStudySpots } from '../hooks/useStudySpots';
+import { useSaved } from '../contexts/SavedContext';
+
+// Helper to get image source
+const getImageSource = (image: string | ImageSourcePropType | undefined) => {
+  if (!image) {
+    return { uri: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&h=600&fit=crop' };
+  }
+  if (typeof image === 'string') {
+    return { uri: image };
+  }
+  return image;
+};
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -103,9 +116,11 @@ export default function SpotDetailsScreen() {
   const { spotId } = useLocalSearchParams<{ spotId: string }>();
   const { spots } = useStudySpots();
   const router = useRouter();
+  const { isSaved, toggleSaved } = useSaved();
   const [activeTab, setActiveTab] = useState('availability');
 
   const tabs = ['Availability', 'Reviews', 'Photos', 'Details'];
+  const saved = spotId ? isSaved(spotId) : false;
 
   // Find location from Firebase spots or sample data
   const location: Location | undefined = useMemo(() => {
@@ -161,7 +176,7 @@ export default function SpotDetailsScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Hero Image */}
         <View style={styles.heroContainer}>
-          <Image source={{ uri: location.image }} style={styles.heroImage} />
+          <Image source={getImageSource(location.image)} style={styles.heroImage} />
           <LinearGradient
             colors={['transparent', 'rgba(0,0,0,0.6)']}
             style={styles.heroGradient}
@@ -176,8 +191,15 @@ export default function SpotDetailsScreen() {
               <Ionicons name="chevron-back" size={22} color={colors.text} />
             </TouchableOpacity>
             <View style={styles.headerButtonGroup}>
-              <TouchableOpacity style={styles.headerButton}>
-                <Ionicons name="bookmark-outline" size={20} color={colors.text} />
+              <TouchableOpacity
+                style={styles.headerButton}
+                onPress={() => spotId && toggleSaved(spotId)}
+              >
+                <Ionicons
+                  name={saved ? "heart" : "heart-outline"}
+                  size={20}
+                  color={saved ? "#EF4444" : colors.text}
+                />
               </TouchableOpacity>
               <TouchableOpacity style={styles.headerButton}>
                 <Ionicons name="share-outline" size={20} color={colors.text} />
@@ -341,7 +363,7 @@ export default function SpotDetailsScreen() {
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <TouchableOpacity key={i} style={styles.photoItem}>
                     <Image
-                      source={{ uri: location.image }}
+                      source={getImageSource(location.image)}
                       style={[
                         styles.photoImage,
                         i > 1 && { opacity: 0.8 + (i * 0.02) },

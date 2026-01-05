@@ -3,10 +3,34 @@ import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, SafeAr
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Defs, LinearGradient as SvgGradient, Stop, Text as SvgText } from 'react-native-svg';
 import LocationCard, { Location } from '../../components/LocationCard';
 import FilterChip from '../../components/FilterChip';
 import { colors, gradientColors, filterChips, sampleLocations, calculateCapacity } from '../../constants/theme';
 import { useStudySpots } from '../../hooks/useStudySpots';
+
+// Gradient "ao." Logo component
+const GradientLogo = () => (
+  <Svg width={56} height={36} viewBox="0 0 56 36">
+    <Defs>
+      <SvgGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#6366F1" />
+        <Stop offset="50%" stopColor="#8B5CF6" />
+        <Stop offset="100%" stopColor="#A855F7" />
+      </SvgGradient>
+    </Defs>
+    <SvgText
+      x="0"
+      y="28"
+      fill="url(#logoGradient)"
+      fontSize="28"
+      fontWeight="bold"
+      fontFamily="Georgia"
+    >
+      ao.
+    </SvgText>
+  </Svg>
+);
 
 export default function SearchScreen() {
   const router = useRouter();
@@ -85,16 +109,9 @@ export default function SearchScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header with gradient title */}
+      {/* Header with gradient logo */}
       <View style={styles.header}>
-        <LinearGradient
-          colors={gradientColors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.titleContainer}
-        >
-          <Text style={styles.title}>availo.</Text>
-        </LinearGradient>
+        <GradientLogo />
         <View style={styles.liveBadge}>
           <View style={styles.liveDot} />
           <Text style={styles.liveText}>Live</Text>

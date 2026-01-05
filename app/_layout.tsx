@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
+import { SavedProvider } from "../contexts/SavedContext";
 import "./globals.css";
 
 function AppContent() {
@@ -31,7 +32,9 @@ function AppContent() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <AppContent />
+      <SavedProvider>
+        <AppContent />
+      </SavedProvider>
     </AuthProvider>
   );
 }

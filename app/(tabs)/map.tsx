@@ -238,6 +238,7 @@ export default function MapScreen() {
           <LocationCard
             location={selectedLocation}
             onPress={handleViewDetails}
+            onClose={() => setSelectedLocation(null)}
           />
         </View>
       )}

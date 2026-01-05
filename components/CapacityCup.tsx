@@ -60,8 +60,8 @@ export default function CapacityCup({ percentage, size = 'md' }: CapacityCupProp
           opacity={0.85}
         />
 
-        {/* Steam lines when less than 50% full */}
-        {percentage < 50 && (
+        {/* Steam lines when 90%+ full (very busy/hot) */}
+        {percentage >= 90 && (
           <>
             <Path
               d="M18 6C18 6 17 3 18 1"

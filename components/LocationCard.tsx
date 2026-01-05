@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ImageSourcePropType } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import CapacityCup from './CapacityCup';
-import { colors } from '../constants/theme';
+import { colors, gradientColors } from '../constants/theme';
+import { useSaved } from '../contexts/SavedContext';
 
 export interface Location {
   id: string;
@@ -15,7 +17,8 @@ export interface Location {
   neighborhood: string;
   distance: string;
   capacity: number;
-  image: string;
+  image: string | ImageSourcePropType;
+  imageUrl?: string;
   wifi?: number;
   outlets?: number;
   food?: number;
@@ -36,20 +39,38 @@ export interface Location {
 interface LocationCardProps {
   location: Location;
   onPress: () => void;
+  onClose?: () => void;
   compact?: boolean;
+  showSaveButton?: boolean;
 }
 
-export default function LocationCard({ location, onPress, compact = false }: LocationCardProps) {
+// Helper to get image source
+const getImageSource = (image: string | ImageSourcePropType) => {
+  if (typeof image === 'string') {
+    return { uri: image };
+  }
+  return image;
+};
+
+export default function LocationCard({ location, onPress, onClose, compact = false, showSaveButton = true }: LocationCardProps) {
+  const { isSaved, toggleSaved } = useSaved();
+  const saved = isSaved(location.id);
+
   // Calculate capacity from Firebase data if available
   const capacity = location.capacity ??
     (location.current_occupancy && location.max_capacity
       ? Math.round((location.current_occupancy / location.max_capacity) * 100)
       : 50);
 
+  const handleSavePress = (e: any) => {
+    e.stopPropagation();
+    toggleSaved(location.id);
+  };
+
   if (compact) {
     return (
       <TouchableOpacity style={styles.compactCard} onPress={onPress} activeOpacity={0.9}>
-        <Image source={{ uri: location.image }} style={styles.compactImage} />
+        <Image source={getImageSource(location.image)} style={styles.compactImage} />
         <View style={styles.compactContent}>
           <View style={styles.compactHeader}>
             <Text style={styles.compactName} numberOfLines={1}>{location.name}</Text>
@@ -67,7 +88,18 @@ export default function LocationCard({ location, onPress, compact = false }: Loc
           </View>
           <View style={styles.compactFooter}>
             <Text style={styles.neighborhoodText}>{location.neighborhood}</Text>
-            <CapacityCup percentage={capacity} size="sm" />
+            <View style={styles.compactActions}>
+              {showSaveButton && (
+                <TouchableOpacity onPress={handleSavePress} style={styles.saveButtonCompact}>
+                  <Ionicons
+                    name={saved ? "heart" : "heart-outline"}
+                    size={18}
+                    color={saved ? "#EF4444" : colors.textLight}
+                  />
+                </TouchableOpacity>
+              )}
+              <CapacityCup percentage={capacity} size="sm" />
+            </View>
           </View>
         </View>
       </TouchableOpacity>
@@ -77,10 +109,21 @@ export default function LocationCard({ location, onPress, compact = false }: Loc
   return (
     <TouchableOpacity style={styles.fullCard} onPress={onPress} activeOpacity={0.9}>
       <View style={styles.imageContainer}>
-        <Image source={{ uri: location.image }} style={styles.fullImage} />
-        <TouchableOpacity style={styles.closeButton}>
-          <Ionicons name="close" size={18} color={colors.textMuted} />
-        </TouchableOpacity>
+        <Image source={getImageSource(location.image)} style={styles.fullImage} />
+        {onClose && (
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <Ionicons name="close" size={18} color={colors.textMuted} />
+          </TouchableOpacity>
+        )}
+        {showSaveButton && (
+          <TouchableOpacity style={styles.saveButton} onPress={handleSavePress}>
+            <Ionicons
+              name={saved ? "heart" : "heart-outline"}
+              size={20}
+              color={saved ? "#EF4444" : colors.textMuted}
+            />
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.fullContent}>
         <View style={styles.fullHeader}>
@@ -189,6 +232,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  compactActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  saveButtonCompact: {
+    padding: 4,
+  },
   neighborhoodText: {
     fontSize: 12,
     color: colors.textLight,
@@ -217,6 +268,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     right: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 20,
+    padding: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  saveButton: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 20,
     padding: 8,
