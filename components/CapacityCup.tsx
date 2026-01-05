@@ -88,8 +88,10 @@ export default function CapacityCup({ percentage, size = 'md' }: CapacityCupProp
         )}
       </Svg>
 
-      {/* Percentage text - centered within cup body */}
-      <View style={styles.textContainer}>
+      {/* Percentage text - centered within cup body (not including handle) */}
+      {/* Cup body spans x=8 to x=40 in viewBox (32 units), viewBox width is 48 */}
+      {/* So cup body center is at 24/48 = 50% from left, but we offset for handle */}
+      <View style={[styles.textContainer, { width: width * 0.83, height }]}>
         <Text
           style={[
             styles.percentageText,
@@ -114,12 +116,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    right: 0,
-    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 6,
-    paddingRight: 6,
+    paddingTop: 4,
   },
   percentageText: {
     fontWeight: '700',

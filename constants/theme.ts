@@ -27,12 +27,13 @@ export const colors = {
 };
 
 // Get capacity color based on percentage (light to dark purple gradient)
+// Uses high contrast colors for clear visual distinction
 export const getCapacityColor = (percentage: number): string => {
-  if (percentage < 20) return '#C4B5FD'; // Very light purple - nearly empty
-  if (percentage < 40) return '#A78BFA'; // Light purple
+  if (percentage < 20) return '#DDD6FE'; // Very light lavender - nearly empty
+  if (percentage < 40) return '#A78BFA'; // Light violet
   if (percentage < 60) return '#8B5CF6'; // Medium purple
   if (percentage < 80) return '#7C3AED'; // Dark purple
-  return '#6D28D9'; // Very dark purple - full
+  return '#5B21B6'; // Deep violet - full/very busy
 };
 
 // Get capacity text description
@@ -76,6 +77,8 @@ export const sampleLocations = [
     neighborhood: 'UCLA',
     distance: '0.1 mi',
     capacity: 35,
+    max_capacity: 450,
+    current_occupancy: 157,
     image: locationImages.powellLibrary,
     imageUrl: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=800&h=600&fit=crop',
     wifi: 4.8,
@@ -100,6 +103,8 @@ export const sampleLocations = [
     neighborhood: 'UCLA',
     distance: '0.2 mi',
     capacity: 58,
+    max_capacity: 200,
+    current_occupancy: 116,
     image: locationImages.yrlStudyLounge,
     imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop',
     wifi: 4.7,
@@ -124,6 +129,8 @@ export const sampleLocations = [
     neighborhood: 'Westwood',
     distance: '0.4 mi',
     capacity: 45,
+    max_capacity: 60,
+    current_occupancy: 27,
     image: locationImages.elyseeBakery,
     imageUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&h=600&fit=crop',
     wifi: 4.2,
@@ -148,6 +155,8 @@ export const sampleLocations = [
     neighborhood: 'Santa Monica',
     distance: '2.1 mi',
     capacity: 92,
+    max_capacity: 40,
+    current_occupancy: 37,
     image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=600&fit=crop',
     wifi: 4.2,
     outlets: 3.5,

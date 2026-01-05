@@ -279,6 +279,14 @@ export default function SpotDetailsScreen() {
                           ? 'Moderately busy'
                           : 'Very busy'}
                       </Text>
+                      {location.max_capacity && location.current_occupancy !== undefined && (
+                        <View style={styles.peopleCountContainer}>
+                          <Ionicons name="people" size={14} color="rgba(255,255,255,0.7)" />
+                          <Text style={styles.peopleCountText}>
+                            {location.current_occupancy}/{location.max_capacity} people
+                          </Text>
+                        </View>
+                      )}
                     </View>
                     <CapacityCup percentage={location.capacity} size="lg" />
                   </View>
@@ -626,6 +634,22 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.5)',
     fontSize: 14,
     marginTop: 4,
+  },
+  peopleCountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+  },
+  peopleCountText: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 13,
+    fontWeight: '600',
   },
   popularTimesContainer: {
     marginTop: 8,
