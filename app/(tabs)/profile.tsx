@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { auth } from '../../FirebaseConfig';
+import { colors, gradientColors } from '../../constants/theme';
 
 export default function ProfileScreen() {
   const { user } = useAuth();
@@ -18,155 +20,81 @@ export default function ProfileScreen() {
     }
   };
 
-  const profileSections = [
-    {
-      title: 'Account',
-      items: [
-        {
-          icon: 'person',
-          title: 'Edit Profile',
-          subtitle: 'Update your information',
-          onPress: () => Alert.alert('Coming Soon', 'Profile editing will be available soon!')
-        },
-        {
-          icon: 'notifications',
-          title: 'Notifications',
-          subtitle: 'Manage your alerts',
-          onPress: () => Alert.alert('Coming Soon', 'Notification settings will be available soon!')
-        },
-        {
-          icon: 'shield',
-          title: 'Privacy',
-          subtitle: 'Data and privacy settings',
-          onPress: () => Alert.alert('Coming Soon', 'Privacy settings will be available soon!')
-        }
-      ]
-    },
-    {
-      title: 'App Settings',
-      items: [
-        {
-          icon: 'location',
-          title: 'Location Services',
-          subtitle: 'Manage location permissions',
-          onPress: () => Alert.alert('Coming Soon', 'Location settings will be available soon!')
-        },
-        {
-          icon: 'wifi',
-          title: 'WiFi Preferences',
-          subtitle: 'Configure WiFi scanning',
-          onPress: () => Alert.alert('Coming Soon', 'WiFi settings will be available soon!')
-        },
-        {
-          icon: 'bluetooth',
-          title: 'Bluetooth Settings',
-          subtitle: 'Manage BLE scanning',
-          onPress: () => Alert.alert('Coming Soon', 'Bluetooth settings will be available soon!')
-        }
-      ]
-    },
-    {
-      title: 'Support',
-      items: [
-        {
-          icon: 'help-circle',
-          title: 'Help & FAQ',
-          subtitle: 'Get help and answers',
-          onPress: () => Alert.alert('Help', 'Help and FAQ will be available soon!')
-        },
-        {
-          icon: 'information-circle',
-          title: 'About',
-          subtitle: 'App information and version',
-          onPress: () => Alert.alert('About', 'StudySpace Tracker v1.0.0\n\nA real-time study space occupancy tracking app powered by LoRaWAN and Firebase.')
-        },
-        {
-          icon: 'mail',
-          title: 'Contact Support',
-          subtitle: 'Get in touch with us',
-          onPress: () => Alert.alert('Contact', 'Contact support will be available soon!')
-        }
-      ]
-    }
+  const stats = [
+    { label: 'Spots Visited', value: '24' },
+    { label: 'Reviews', value: '12' },
+    { label: 'Hours Studied', value: '156' },
+  ];
+
+  const menuItems = [
+    { title: 'Preferences', icon: 'settings-outline' },
+    { title: 'Notifications', icon: 'notifications-outline' },
+    { title: 'Privacy', icon: 'shield-outline' },
+    { title: 'Help & Support', icon: 'help-circle-outline' },
+    { title: 'About Availo', icon: 'information-circle-outline' },
   ];
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header */}
+      {/* Header Section */}
       <View style={styles.header}>
-        <Text style={styles.title}>Profile</Text>
-        <Text style={styles.subtitle}>Manage your account</Text>
+        {/* Gradient Avatar */}
+        <LinearGradient
+          colors={gradientColors}
+          style={styles.avatar}
+        >
+          <Ionicons name="person" size={40} color="white" />
+        </LinearGradient>
+
+        {/* User Info */}
+        <Text style={styles.userName}>
+          {user?.email?.split('@')[0] || 'Study Mode'}
+        </Text>
+        <Text style={styles.userSubtitle}>UCLA Student</Text>
       </View>
 
-      {/* User Info Card */}
-      <View style={styles.userCard}>
-        <View style={styles.userAvatar}>
-          <Ionicons name="person" size={32} color="white" />
-        </View>
-        <View style={styles.userInfo}>
-          <Text style={styles.userName}>
-            {user?.email?.split('@')[0] || 'User'}
-          </Text>
-          <Text style={styles.userEmail}>{user?.email}</Text>
-          <View style={styles.userStatus}>
-            <View style={styles.statusDot} />
-            <Text style={styles.statusText}>Active</Text>
+      {/* Stats Grid */}
+      <View style={styles.statsContainer}>
+        {stats.map((stat, index) => (
+          <View key={index} style={styles.statCard}>
+            <Text style={styles.statValue}>{stat.value}</Text>
+            <Text style={styles.statLabel}>{stat.label}</Text>
           </View>
-        </View>
+        ))}
       </View>
 
-      {/* Stats Card */}
-      <View style={styles.statsCard}>
-        <Text style={styles.statsTitle}>Your Activity</Text>
-        <View style={styles.statsGrid}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>12</Text>
-            <Text style={styles.statLabel}>Spots Visited</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>8.5</Text>
-            <Text style={styles.statLabel}>Avg. Hours</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>4.2</Text>
-            <Text style={styles.statLabel}>Rating</Text>
-          </View>
-        </View>
+      {/* Menu Items */}
+      <View style={styles.menuContainer}>
+        {menuItems.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.menuItem}
+            onPress={() => Alert.alert('Coming Soon', `${item.title} will be available soon!`)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuItemLeft}>
+              <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={22} color={colors.textMuted} />
+              <Text style={styles.menuItemText}>{item.title}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textLight} />
+          </TouchableOpacity>
+        ))}
       </View>
 
-      {/* Settings Sections */}
-      {profileSections.map((section, sectionIndex) => (
-        <View key={sectionIndex} style={styles.section}>
-          <Text style={styles.sectionTitle}>{section.title}</Text>
-          <View style={styles.sectionContent}>
-            {section.items.map((item, itemIndex) => (
-              <TouchableOpacity
-                key={itemIndex}
-                style={styles.settingItem}
-                onPress={item.onPress}
-              >
-                <View style={styles.settingIcon}>
-                  <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={20} color="#6b7280" />
-                </View>
-                <View style={styles.settingInfo}>
-                  <Text style={styles.settingTitle}>{item.title}</Text>
-                  <Text style={styles.settingSubtitle}>{item.subtitle}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      ))}
-
-
-      {/* Sign Out */}
+      {/* Sign Out Button */}
       <View style={styles.signOutContainer}>
-        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-          <Ionicons name="log-out-outline" size={20} color="white" />
+        <TouchableOpacity
+          style={styles.signOutButton}
+          onPress={handleSignOut}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="log-out-outline" size={20} color={colors.danger} />
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
       </View>
+
+      {/* App Info */}
+      <Text style={styles.appInfo}>Availo v1.0.0</Text>
     </ScrollView>
   );
 }
@@ -174,185 +102,119 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
+    paddingTop: 60,
   },
   header: {
-    backgroundColor: 'white',
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  subtitle: {
-    color: '#6b7280',
-    marginTop: 4,
-    fontSize: 16,
-  },
-  userCard: {
-    backgroundColor: 'white',
-    margin: 16,
-    padding: 20,
-    borderRadius: 16,
-    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
   },
-  userAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#3b82f6',
+  avatar: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
-  },
-  userInfo: {
-    flex: 1,
+    marginBottom: 16,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
   userName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  userEmail: {
-    color: '#6b7280',
-    fontSize: 14,
-    marginTop: 2,
-  },
-  userStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#22c55e',
-    marginRight: 6,
-  },
-  statusText: {
-    fontSize: 12,
-    color: '#22c55e',
-    fontWeight: '600',
-  },
-  statsCard: {
-    backgroundColor: 'white',
-    margin: 16,
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  statsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 16,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#3b82f6',
+    color: colors.text,
+    fontFamily: 'Georgia',
   },
-  statLabel: {
-    color: '#6b7280',
-    fontSize: 12,
+  userSubtitle: {
+    fontSize: 16,
+    color: colors.textMuted,
     marginTop: 4,
   },
-  section: {
-    marginBottom: 16,
+  statsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    marginBottom: 24,
+    gap: 12,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    marginHorizontal: 16,
-    marginBottom: 8,
-  },
-  sectionContent: {
+  statCard: {
+    flex: 1,
     backgroundColor: 'white',
-    marginHorizontal: 16,
     borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
     elevation: 2,
   },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+  statValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.primary,
   },
-  settingIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f3f4f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+  statLabel: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 4,
+    textAlign: 'center',
   },
-  settingInfo: {
-    flex: 1,
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  settingSubtitle: {
-    color: '#6b7280',
-    fontSize: 14,
-    marginTop: 2,
-  },
-  signOutContainer: {
+  menuContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 32,
+    marginBottom: 24,
+    gap: 8,
   },
-  signOutButton: {
-    backgroundColor: '#ef4444',
+  menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'white',
     padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  menuItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  menuItemText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: colors.text,
+  },
+  signOutContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  signOutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.danger,
   },
   signOutText: {
-    color: 'white',
     fontSize: 16,
     fontWeight: '600',
-    marginLeft: 8,
+    color: colors.danger,
   },
-}); 
+  appInfo: {
+    textAlign: 'center',
+    color: colors.textLight,
+    fontSize: 12,
+    paddingBottom: 32,
+  },
+});

@@ -1,34 +1,160 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import MapView, { Callout, Marker } from 'react-native-maps';
-import { getAvailabilityColor, getAvailabilityText, getSpotIcon, StudySpot, useStudySpots } from '../../hooks/useStudySpots';
+import React, { useState, useMemo } from 'react';
+import {
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
 
-const statusColors = {
-  available: '#87A96B',  // Sage green
-  busy: '#C65D4F',       // Warm terracotta  
-  full: '#8B4B61'        // Muted burgundy
+import FilterChip from '../../components/FilterChip';
+import LocationCard, { Location } from '../../components/LocationCard';
+import {
+  colors,
+  filterChips,
+  getCapacityColor,
+  gradientColors,
+  sampleLocations,
+  calculateCapacity,
+} from '../../constants/theme';
+import { useStudySpots, StudySpot } from '../../hooks/useStudySpots';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// Custom Map Pin Component
+const MapPin = ({ percentage, isSelected }: { percentage: number; isSelected: boolean }) => {
+  const pinColor = getCapacityColor(percentage);
+  const size = isSelected ? 44 : 36;
+  const viewBox = "0 0 36 44";
+
+  return (
+    <View style={[styles.pinContainer, isSelected && styles.pinSelected]}>
+      <Svg width={size} height={size * 1.22} viewBox={viewBox}>
+        <Path
+          d="M18 0C8.06 0 0 8.06 0 18C0 31.5 18 44 18 44C18 44 36 31.5 36 18C36 8.06 27.94 0 18 0Z"
+          fill={pinColor}
+        />
+        <Circle cx="18" cy="16" r="8" fill="white" />
+        <SvgText
+          x="18"
+          y="19"
+          textAnchor="middle"
+          fontSize="9"
+          fontWeight="bold"
+          fill={pinColor}
+        >
+          {percentage}%
+        </SvgText>
+      </Svg>
+    </View>
+  );
 };
 
 export default function MapScreen() {
   const { spots, loading } = useStudySpots();
   const router = useRouter();
-  
-  // Filter spots that have coordinates for map display
-  const spotsWithCoords = spots.filter(spot => spot.latitude && spot.longitude);
+  const [activeFilters, setActiveFilters] = useState<string[]>(['Café']);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
+  // Merge Firebase spots with sample locations
+  const allLocations: Location[] = useMemo(() => {
+    const firebaseLocations: Location[] = spots
+      .filter(spot => spot.latitude && spot.longitude)
+      .map(spot => ({
+        id: spot.id,
+        name: spot.name,
+        type: spot.type || 'Café',
+        rating: 4.5,
+        reviews: 100,
+        price: '$$',
+        neighborhood: spot.location || 'UCLA',
+        distance: '0.2 mi',
+        capacity: calculateCapacity(spot.current_occupancy, spot.max_capacity),
+        image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&h=600&fit=crop',
+        latitude: spot.latitude!,
+        longitude: spot.longitude!,
+        current_occupancy: spot.current_occupancy,
+        max_capacity: spot.max_capacity,
+      }));
 
-  const handleViewDetails = (spot: StudySpot) => {
-    if (__DEV__) {
-      console.log('Navigating to spot details for:', spot.id);
-    }
-    router.push(`/spot-details?spotId=${spot.id}`);
+    // Combine with sample locations
+    const sampleWithCoords = sampleLocations.filter(loc => loc.latitude && loc.longitude);
+    return [...firebaseLocations, ...sampleWithCoords];
+  }, [spots]);
+
+  // Filter locations based on active filters
+  const filteredLocations = useMemo(() => {
+    if (activeFilters.length === 0) return allLocations;
+    return allLocations.filter(loc =>
+      activeFilters.some(filter =>
+        loc.type.toLowerCase().includes(filter.toLowerCase()) ||
+        (filter === 'Quiet' && loc.capacity < 30) ||
+        (filter === 'Outlets' && (loc.outlets ?? 0) >= 4) ||
+        (filter === '24hr' && loc.hours?.includes('24'))
+      )
+    );
+  }, [allLocations, activeFilters]);
+
+  const handleFilterToggle = (filter: string) => {
+    setActiveFilters(prev =>
+      prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]
+    );
   };
+
+  const handleLocationSelect = (location: Location) => {
+    setSelectedLocation(location);
+  };
+
+  const handleViewDetails = () => {
+    if (selectedLocation) {
+      router.push(`/spot-details?spotId=${selectedLocation.id}`);
+    }
+  };
+
+  const handleMarkerPress = (location: Location) => {
+    setSelectedLocation(location);
+  };
+
+  // Calculate map region to show all locations
+  const mapRegion = useMemo(() => {
+    if (filteredLocations.length === 0) {
+      return {
+        latitude: 34.0689,
+        longitude: -118.4452,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      };
+    }
+
+    const lats = filteredLocations.map(l => l.latitude!);
+    const lngs = filteredLocations.map(l => l.longitude!);
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+
+    return {
+      latitude: (minLat + maxLat) / 2,
+      longitude: (minLng + maxLng) / 2,
+      latitudeDelta: Math.max(0.02, (maxLat - minLat) * 1.5),
+      longitudeDelta: Math.max(0.02, (maxLng - minLng) * 1.5),
+    };
+  }, [filteredLocations]);
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <Ionicons name="map" size={48} color="#3b82f6" />
+        <LinearGradient colors={gradientColors} style={styles.loadingIcon}>
+          <Ionicons name="map" size={32} color="white" />
+        </LinearGradient>
         <Text style={styles.loadingText}>Loading map...</Text>
       </View>
     );
@@ -36,79 +162,90 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Study Map</Text>
-        <Text style={styles.subtitle}>Find available study spots</Text>
-      </View>
-
       {/* Map */}
-      <View style={styles.mapContainer}>
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: 37.7749,
-            longitude: -122.4194,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-        >
-          {spotsWithCoords.map((spot) => (
-            <Marker
-              key={spot.id}
-              coordinate={{
-                latitude: spot.latitude!,
-                longitude: spot.longitude!,
-              }}
-              onPress={() => handleViewDetails(spot)}
-            >
-              <View style={[
-                styles.marker,
-                { backgroundColor: getAvailabilityColor(spot.current_occupancy, spot.max_capacity) }
-              ]}>
-                <Ionicons name={getSpotIcon(spot.type) as keyof typeof Ionicons.glyphMap} size={16} color="white" />
-              </View>
-              <Callout onPress={() => handleViewDetails(spot)}>
-                <View style={styles.callout}>
-                  <Text style={styles.calloutTitle}>{spot.name}</Text>
-                  <Text style={styles.calloutText}>
-                    {spot.current_occupancy}/{spot.max_capacity} people
-                  </Text>
-                  <Text style={styles.calloutStatus}>
-                    {getAvailabilityText(spot.current_occupancy, spot.max_capacity)}
-                  </Text>
-                  <TouchableOpacity 
-                    style={styles.viewDetailsButton}
-                    onPress={() => handleViewDetails(spot)}
-                  >
-                    <Text style={styles.viewDetailsText}>View Details</Text>
-                    <Ionicons name="chevron-forward" size={16} color="white" />
-                  </TouchableOpacity>
-                </View>
-              </Callout>
-            </Marker>
-          ))}
-        </MapView>
-      </View>
+      <MapView
+        style={styles.map}
+        provider={PROVIDER_DEFAULT}
+        initialRegion={mapRegion}
+        showsUserLocation
+        showsMyLocationButton={false}
+        mapType="standard"
+      >
+        {filteredLocations.map((location) => (
+          <Marker
+            key={location.id}
+            coordinate={{
+              latitude: location.latitude!,
+              longitude: location.longitude!,
+            }}
+            onPress={() => handleMarkerPress(location)}
+          >
+            <MapPin
+              percentage={location.capacity}
+              isSelected={selectedLocation?.id === location.id}
+            />
+          </Marker>
+        ))}
+      </MapView>
 
-      {/* Legend */}
-      <View style={styles.legend}>
-        <Text style={styles.legendTitle}>Availability</Text>
-        <View style={styles.legendItems}>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: statusColors.available }]} />
-            <Text style={styles.legendText}>Available</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: statusColors.busy }]} />
-            <Text style={styles.legendText}>Busy</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: statusColors.full }]} />
-            <Text style={styles.legendText}>Full</Text>
+      {/* Search Bar Overlay */}
+      <View style={styles.searchOverlay}>
+        <View style={styles.searchBar}>
+          <View style={styles.searchInputContainer}>
+            <Ionicons name="search" size={20} color={colors.textLight} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search UCLA, Los Angeles"
+              placeholderTextColor={colors.textLight}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            <View style={styles.searchDivider} />
+            <View style={styles.searchMeta}>
+              <Ionicons name="person" size={16} color={colors.textLight} />
+              <Text style={styles.searchMetaText}>2+</Text>
+              <Text style={styles.searchMetaNow}>Now</Text>
+            </View>
           </View>
         </View>
+
+        {/* Filter Chips */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filterContainer}
+          contentContainerStyle={styles.filterContent}
+        >
+          {filterChips.map((chip) => (
+            <FilterChip
+              key={chip}
+              label={chip}
+              active={activeFilters.includes(chip)}
+              onPress={() => handleFilterToggle(chip)}
+            />
+          ))}
+        </ScrollView>
       </View>
+
+      {/* Location Count Badge */}
+      <View style={styles.countBadge}>
+        <Text style={styles.countText}>{filteredLocations.length} spots nearby</Text>
+      </View>
+
+      {/* Selected Location Card */}
+      {selectedLocation && (
+        <View style={styles.selectedCardContainer}>
+          <LocationCard
+            location={selectedLocation}
+            onPress={handleViewDetails}
+          />
+        </View>
+      )}
+
+      {/* My Location Button */}
+      <TouchableOpacity style={styles.myLocationButton}>
+        <Ionicons name="locate" size={22} color={colors.primary} />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -116,144 +253,128 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.surfaceDark,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   loadingText: {
     marginTop: 16,
-    color: '#6b7280',
-    fontSize: 18,
-  },
-  header: {
-    backgroundColor: 'white',
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  subtitle: {
-    color: '#6b7280',
-    marginTop: 4,
+    color: colors.textMuted,
     fontSize: 16,
-  },
-  mapContainer: {
-    flex: 1,
-    margin: 16,
-    borderRadius: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
   },
   map: {
     flex: 1,
   },
-  marker: {
-    width: 32,
-    height: 32,
+  pinContainer: {
+    alignItems: 'center',
+  },
+  pinSelected: {
+    transform: [{ scale: 1.2 }],
+  },
+  searchOverlay: {
+    position: 'absolute',
+    top: 60,
+    left: 16,
+    right: 16,
+    zIndex: 10,
+  },
+  searchBar: {
+    backgroundColor: 'white',
     borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'white',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
-  callout: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 12,
-    minWidth: 150,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  calloutTitle: {
+  searchInput: {
+    flex: 1,
+    marginLeft: 12,
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 4,
+    color: colors.text,
   },
-  calloutText: {
+  searchDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border,
+    marginHorizontal: 12,
+  },
+  searchMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  searchMetaText: {
     fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 4,
+    color: colors.textMuted,
   },
-  calloutStatus: {
-    fontSize: 12,
-    color: '#3b82f6',
-    fontWeight: '600',
-    marginBottom: 4,
+  searchMetaNow: {
+    fontSize: 14,
+    color: colors.textLight,
   },
-  viewDetailsButton: {
-    backgroundColor: '#3b82f6',
-    flexDirection: 'row',
+  filterContainer: {
+    marginTop: 12,
+  },
+  filterContent: {
+    paddingRight: 16,
+  },
+  countBadge: {
+    position: 'absolute',
+    bottom: 100,
+    left: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  countText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.text,
+  },
+  selectedCardContainer: {
+    position: 'absolute',
+    bottom: 100,
+    left: 16,
+    right: 16,
+    zIndex: 20,
+  },
+  myLocationButton: {
+    position: 'absolute',
+    bottom: 100,
+    right: 16,
+    width: 48,
+    height: 48,
+    backgroundColor: 'white',
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginTop: 8,
-  },
-  viewDetailsText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '600',
-    marginRight: 4,
-  },
-  legend: {
-    backgroundColor: 'white',
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  legendTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 12,
-  },
-  legendItems: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  legendItem: {
-    alignItems: 'center',
-  },
-  legendDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    marginBottom: 4,
-  },
-  legendText: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-}); 
+});

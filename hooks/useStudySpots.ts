@@ -8,10 +8,11 @@ export interface StudySpot {
   current_occupancy: number;
   max_capacity: number;
   distance: number;
-  type: 'cafe' | 'library' | 'lounge' | 'study_room';
+  type: 'cafe' | 'library' | 'lounge' | 'study_room' | string;
   amenities?: string[];
   latitude?: number;
   longitude?: number;
+  location?: string; // Neighborhood/area name
 }
 
 export interface LoungeStatus {
@@ -22,6 +23,9 @@ export interface LoungeStatus {
   wifi_devices: number;
   ble_devices: number;
   max_capacity?: number;
+  venue_name?: string;
+  venue_type?: string;
+  location?: string;
 }
 
 const mockStudySpots: StudySpot[] = [
