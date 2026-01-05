@@ -2,7 +2,7 @@
 
 ![Availo Screenshot](availoscreenshot.png)
 
-Get real-time occupancy for cafes, libraries, and study spaces. Availo shows you exactly how crowded a spot is before you go — so you never waste a trip to a packed coffee shop. Launching at UCLA.
+Get real-time occupancy for cafes, libraries, and study spaces. Availo shows you exactly how crowded a spot is before you go, so you never waste a trip to a packed coffee shop. Launching at UCLA.
 
 ## Features
 
@@ -15,7 +15,7 @@ Get real-time occupancy for cafes, libraries, and study spaces. Availo shows you
 
 ## Tech Stack
 
-- **Frontend:** React Native, Node.js, Expo
+- **Frontend:** React, Node.js, Expo
 - **Backend:** Firebase Cloud Functions, Firestore
 - **IoT:** ESP32-S3, LoRaWAN, The Things Network (TTN)
 - **Hardware:** Heltec WiFi LoRa 32 V3, SenseCap M2 Gateway
