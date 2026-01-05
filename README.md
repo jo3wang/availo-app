@@ -1,6 +1,6 @@
 # www.useavailo.com
 
-![Availo Screenshot](screenshot.png)
+![Availo Screenshot](availoscreenshot.png)
 
 Get real-time occupancy for cafes, libraries, and study spaces. Availo shows you exactly how crowded a spot is before you go — so you never waste a trip to a packed coffee shop. Launching at UCLA.
 
