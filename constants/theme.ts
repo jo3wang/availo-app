@@ -66,7 +66,7 @@ export const locationImages = {
 // Sample location data for mockup/testing
 export const sampleLocations = [
   {
-    id: '1',
+    id: 'powell-library',
     name: 'Powell Library',
     type: 'Library',
     rating: 4.8,
@@ -90,7 +90,7 @@ export const sampleLocations = [
     longitude: -118.4421,
   },
   {
-    id: '2',
+    id: 'yrl-study-lounge',
     name: 'YRL Study Lounge',
     type: 'Lounge',
     rating: 4.3,
@@ -114,7 +114,7 @@ export const sampleLocations = [
     longitude: -118.4414,
   },
   {
-    id: '3',
+    id: 'elysee-bakery',
     name: 'Elysee Bakery & Cafe',
     type: 'Café',
     rating: 4.6,
@@ -138,7 +138,7 @@ export const sampleLocations = [
     longitude: -118.4452,
   },
   {
-    id: '4',
+    id: 'verve-coffee',
     name: 'Verve Coffee Roasters',
     type: 'Café',
     rating: 4.4,

@@ -122,15 +122,21 @@ export default function SpotDetailsScreen() {
   const tabs = ['Availability', 'Reviews', 'Photos', 'Details'];
   const saved = spotId ? isSaved(spotId) : false;
 
-  // Find location from Firebase spots or sample data
+  // Find location from sample data or Firebase spots
   const location: Location | undefined = useMemo(() => {
-    // First check Firebase spots
+    // First check sample locations (these have full data)
+    const sampleLocation = sampleLocations.find(l => l.id === spotId);
+    if (sampleLocation) {
+      return sampleLocation;
+    }
+
+    // Then check Firebase spots
     const firebaseSpot = spots.find(s => s.id === spotId);
     if (firebaseSpot) {
       return {
         id: firebaseSpot.id,
         name: firebaseSpot.name,
-        type: firebaseSpot.type || 'Café',
+        type: firebaseSpot.type || 'Cafe',
         rating: 4.5,
         reviews: 100,
         price: '$$',
@@ -151,8 +157,7 @@ export default function SpotDetailsScreen() {
       };
     }
 
-    // Then check sample locations
-    return sampleLocations.find(l => l.id === spotId);
+    return undefined;
   }, [spots, spotId]);
 
   if (!location) {

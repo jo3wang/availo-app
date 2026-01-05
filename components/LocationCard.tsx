@@ -72,12 +72,26 @@ export default function LocationCard({ location, onPress, onClose, compact = fal
       <TouchableOpacity style={styles.compactCard} onPress={onPress} activeOpacity={0.9}>
         <Image source={getImageSource(location.image)} style={styles.compactImage} />
         <View style={styles.compactContent}>
+          {/* Top row: name and heart icon */}
           <View style={styles.compactHeader}>
             <Text style={styles.compactName} numberOfLines={1}>{location.name}</Text>
+            {showSaveButton && (
+              <TouchableOpacity onPress={handleSavePress} style={styles.saveButtonCompact}>
+                <Ionicons
+                  name={saved ? "heart" : "heart-outline"}
+                  size={18}
+                  color={saved ? "#EF4444" : colors.textLight}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+          {/* Type badge under name */}
+          <View style={styles.typeBadgeRow}>
             <View style={styles.typeBadge}>
               <Text style={styles.typeBadgeText}>{location.type}</Text>
             </View>
           </View>
+          {/* Rating row */}
           <View style={styles.ratingRow}>
             <Ionicons name="star" size={12} color="#FBBF24" />
             <Text style={styles.ratingText}>{location.rating}</Text>
@@ -86,20 +100,10 @@ export default function LocationCard({ location, onPress, onClose, compact = fal
             <Text style={styles.dotSeparator}>•</Text>
             <Text style={styles.metaText}>{location.distance}</Text>
           </View>
+          {/* Footer with neighborhood and capacity cup */}
           <View style={styles.compactFooter}>
             <Text style={styles.neighborhoodText}>{location.neighborhood}</Text>
-            <View style={styles.compactActions}>
-              {showSaveButton && (
-                <TouchableOpacity onPress={handleSavePress} style={styles.saveButtonCompact}>
-                  <Ionicons
-                    name={saved ? "heart" : "heart-outline"}
-                    size={18}
-                    color={saved ? "#EF4444" : colors.textLight}
-                  />
-                </TouchableOpacity>
-              )}
-              <CapacityCup percentage={capacity} size="sm" />
-            </View>
+            <CapacityCup percentage={capacity} size="sm" />
           </View>
         </View>
       </TouchableOpacity>
@@ -177,14 +181,19 @@ const styles = StyleSheet.create({
   },
   compactHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
   },
   compactName: {
     fontSize: 14,
     fontWeight: '600',
     color: colors.text,
     flex: 1,
+    marginRight: 8,
+  },
+  typeBadgeRow: {
+    flexDirection: 'row',
+    marginTop: 4,
   },
   typeBadge: {
     backgroundColor: '#EEF2FF',
@@ -231,14 +240,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  compactActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    marginTop: 4,
   },
   saveButtonCompact: {
-    padding: 4,
+    padding: 2,
   },
   neighborhoodText: {
     fontSize: 12,

@@ -9,9 +9,9 @@ interface CapacityCupProps {
 }
 
 const sizes = {
-  sm: { width: 32, height: 40, fontSize: 10 },
-  md: { width: 48, height: 60, fontSize: 14 },
-  lg: { width: 64, height: 80, fontSize: 18 },
+  sm: { width: 32, height: 40, fontSize: 8 },
+  md: { width: 48, height: 60, fontSize: 10 },
+  lg: { width: 64, height: 80, fontSize: 14 },
 };
 
 export default function CapacityCup({ percentage, size = 'md' }: CapacityCupProps) {
@@ -88,8 +88,8 @@ export default function CapacityCup({ percentage, size = 'md' }: CapacityCupProp
         )}
       </Svg>
 
-      {/* Percentage text */}
-      <View style={styles.textContainer}>
+      {/* Percentage text - centered within cup body */}
+      <View style={[styles.textContainer, { width, height }]}>
         <Text
           style={[
             styles.percentageText,
@@ -114,13 +114,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    right: 0,
-    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 8,
+    paddingTop: 12,
+    paddingRight: 4,
   },
   percentageText: {
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });
