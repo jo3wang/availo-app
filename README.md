@@ -1,50 +1,22 @@
-# Welcome to your Expo app 👋
+# Availo @ useavailo.com
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+![Availo Screenshot](screenshot.png)
 
-## Get started
+Get real-time occupancy for cafes, libraries, and study spaces. Availo shows you exactly how crowded a spot is before you go — so you never waste a trip to a packed coffee shop. Launching at UCLA.
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+- **Live Occupancy Data** See exactly how busy a spot is, updated in real-time using IoT sensor data.
+- **Map View** Find open cafes and libraries near you at a glance with color-coded crowd indicators.
+- **Smart Search** Filter by space type — cafés, libraries, lounges - and sort by distance or availability.
+- **Favorites & Notifications** Save your go-to spots and get notified when they empty out.
+- **Study Space Ratings** WiFi speed, outlet access, noise level, and ambience — all the details that matter.
+- **Privacy First Design** Anonymous device counting via WiFi/BLE scanning. No cameras, no tracking.
 
-2. Start the app
+## Tech Stack
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Frontend:** React Native, Node.js, Expo
+- **Backend:** Firebase Cloud Functions, Firestore
+- **IoT:** ESP32-S3, LoRaWAN, The Things Network (TTN)
+- **Hardware:** Heltec WiFi LoRa 32 V3, SenseCap M2 Gateway
+- **Deployment:** Framer (landing page)
