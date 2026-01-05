@@ -27,13 +27,13 @@ export const colors = {
 };
 
 // Get capacity color based on percentage (light to dark purple gradient)
-// Uses high contrast colors for clear visual distinction
+// Colors chosen to be visible on both white cards and dark capacity card
 export const getCapacityColor = (percentage: number): string => {
-  if (percentage < 20) return '#DDD6FE'; // Very light lavender - nearly empty
-  if (percentage < 40) return '#A78BFA'; // Light violet
-  if (percentage < 60) return '#8B5CF6'; // Medium purple
-  if (percentage < 80) return '#7C3AED'; // Dark purple
-  return '#5B21B6'; // Deep violet - full/very busy
+  if (percentage < 20) return '#A78BFA'; // Light violet - visible on white
+  if (percentage < 40) return '#8B5CF6'; // Medium light purple
+  if (percentage < 60) return '#7C3AED'; // Medium purple
+  if (percentage < 80) return '#6D28D9'; // Dark purple
+  return '#A855F7'; // Bright magenta-purple - visible on dark background
 };
 
 // Get capacity text description
@@ -94,8 +94,8 @@ export const sampleLocations = [
   },
   {
     id: 'yrl-study-lounge',
-    name: 'YRL Study Lounge',
-    type: 'Lounge',
+    name: 'Young Research Library',
+    type: 'Library',
     rating: 4.3,
     reviews: 567,
     price: 'Free',

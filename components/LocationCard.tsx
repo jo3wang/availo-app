@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 24,
     elevation: 10,
-    maxWidth: 340,
+    width: '100%',
   },
   imageContainer: {
     position: 'relative',

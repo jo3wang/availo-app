@@ -227,11 +227,6 @@ export default function MapScreen() {
         </ScrollView>
       </View>
 
-      {/* Location Count Badge */}
-      <View style={styles.countBadge}>
-        <Text style={styles.countText}>{filteredLocations.length} spots nearby</Text>
-      </View>
-
       {/* Selected Location Card */}
       {selectedLocation && (
         <View style={styles.selectedCardContainer}>
@@ -242,6 +237,15 @@ export default function MapScreen() {
           />
         </View>
       )}
+
+      {/* Location Count Badge - positioned below card when card is shown */}
+      <View style={[
+        styles.countBadge,
+        selectedLocation && styles.countBadgeWithCard
+      ]}>
+        <Ionicons name="location" size={14} color={colors.primary} style={{ marginRight: 6 }} />
+        <Text style={styles.countText}>{filteredLocations.length} spots nearby</Text>
+      </View>
 
       {/* My Location Button */}
       <TouchableOpacity style={styles.myLocationButton}>
@@ -340,6 +344,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 100,
     left: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -349,6 +355,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 4,
+    zIndex: 10,
+  },
+  countBadgeWithCard: {
+    bottom: 40,
+    left: (SCREEN_WIDTH - 140) / 2,
   },
   countText: {
     fontSize: 14,
