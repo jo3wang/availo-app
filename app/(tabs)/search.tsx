@@ -11,7 +11,7 @@ import { useStudySpots } from '../../hooks/useStudySpots';
 
 // Gradient "ao." Logo component
 const GradientLogo = () => (
-  <Svg width={56} height={36} viewBox="0 0 56 36">
+  <Svg width={72} height={44} viewBox="0 0 72 44">
     <Defs>
       <SvgGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
         <Stop offset="0%" stopColor="#6366F1" />
@@ -21,9 +21,9 @@ const GradientLogo = () => (
     </Defs>
     <SvgText
       x="0"
-      y="28"
+      y="34"
       fill="url(#logoGradient)"
-      fontSize="28"
+      fontSize="36"
       fontWeight="bold"
       fontFamily="Georgia"
     >
@@ -40,28 +40,38 @@ export default function SearchScreen() {
 
   // Merge sample locations with real Firebase data
   const allLocations = useMemo(() => {
-    // Convert Firebase lounges to Location format
-    const firebaseLocations: Location[] = lounges.map((lounge) => ({
-      id: lounge.id,
-      name: lounge.venue_name || lounge.id,
-      type: lounge.venue_type === 'study_area' ? 'Lounge' : 'Café',
-      rating: 4.5,
-      reviews: 100,
-      price: 'Free',
-      cuisine: 'Study Space',
-      neighborhood: 'Campus',
-      distance: '0.1 mi',
-      capacity: calculateCapacity(lounge.current_occupancy, lounge.max_capacity || 20),
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop',
-      wifi: (lounge.wifi_devices || 0) / 5,
-      outlets: 4.0,
-      address: 'Campus Location',
-      hours: '8am - 10pm',
-      current_occupancy: lounge.current_occupancy,
-      max_capacity: lounge.max_capacity || 20,
-      wifi_devices: lounge.wifi_devices,
-      ble_devices: lounge.ble_devices,
-    }));
+    // Convert Firebase lounges to Location format (keep only first entry per venue name)
+    const seenNames = new Set<string>();
+    const firebaseLocations: Location[] = [];
+
+    for (const lounge of lounges) {
+      const name = lounge.venue_name || lounge.id;
+      // Skip duplicates by name
+      if (seenNames.has(name.toLowerCase())) continue;
+      seenNames.add(name.toLowerCase());
+
+      firebaseLocations.push({
+        id: lounge.id,
+        name,
+        type: lounge.venue_type === 'study_area' ? 'Lounge' : 'Lounge',
+        rating: 4.5,
+        reviews: 100,
+        price: 'Free',
+        cuisine: 'Study Space',
+        neighborhood: 'Campus',
+        distance: '0.1 mi',
+        capacity: calculateCapacity(lounge.current_occupancy, lounge.max_capacity || 20),
+        image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop',
+        wifi: (lounge.wifi_devices || 0) / 5,
+        outlets: 4.0,
+        address: 'Campus Location',
+        hours: '8am - 10pm',
+        current_occupancy: lounge.current_occupancy,
+        max_capacity: lounge.max_capacity || 20,
+        wifi_devices: lounge.wifi_devices,
+        ble_devices: lounge.ble_devices,
+      });
+    }
 
     // Add sample locations for demo
     const samples: Location[] = sampleLocations.map((loc) => ({

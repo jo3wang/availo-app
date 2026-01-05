@@ -26,13 +26,13 @@ export const colors = {
   borderLight: '#F3F4F6',
 };
 
-// Get capacity color based on percentage
+// Get capacity color based on percentage (light to dark purple gradient)
 export const getCapacityColor = (percentage: number): string => {
-  if (percentage < 30) return '#10B981'; // Green - empty
-  if (percentage < 50) return '#6366F1'; // Light purple
-  if (percentage < 70) return '#8B5CF6'; // Medium purple
-  if (percentage < 85) return '#7C3AED'; // Dark purple
-  return '#EF4444'; // Red - full
+  if (percentage < 20) return '#C4B5FD'; // Very light purple - nearly empty
+  if (percentage < 40) return '#A78BFA'; // Light purple
+  if (percentage < 60) return '#8B5CF6'; // Medium purple
+  if (percentage < 80) return '#7C3AED'; // Dark purple
+  return '#6D28D9'; // Very dark purple - full
 };
 
 // Get capacity text description

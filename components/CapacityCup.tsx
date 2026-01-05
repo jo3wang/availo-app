@@ -89,7 +89,7 @@ export default function CapacityCup({ percentage, size = 'md' }: CapacityCupProp
       </Svg>
 
       {/* Percentage text - centered within cup body */}
-      <View style={[styles.textContainer, { width, height }]}>
+      <View style={styles.textContainer}>
         <Text
           style={[
             styles.percentageText,
@@ -114,12 +114,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 12,
-    paddingRight: 4,
+    paddingTop: 6,
+    paddingRight: 6,
   },
   percentageText: {
     fontWeight: '700',
+    textAlign: 'center',
   },
 });
