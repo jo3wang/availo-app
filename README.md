@@ -1,4 +1,4 @@
-# Availo @ useavailo.com
+# www.useavailo.com
 
 ![Availo Screenshot](screenshot.png)
 
